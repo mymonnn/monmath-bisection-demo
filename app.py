@@ -27,7 +27,6 @@ HTML = """
       h2 { color: darkblue; margin-top: 0; }
       pre { background-color: #f0f0f0; padding: 10px; }
       
-      /* Header bar */
       .header {
         background-color: darkblue;
         color: white;
@@ -44,12 +43,12 @@ HTML = """
   <body>
     <div class="header">monmath.com</div>
     <div class="container">
-      <h2>Bisection Calculator</h2>
+      <h2>Root of Equation Solver | Bisection Method</h2>
       <form method="post">
-        Function f(x): <input type="text" name="fx" value="{{ fx }}" style="width:200px;"> = 0<br><br>
-        Left (xl): <input type="text" name="xl" value="{{ xl }}"><br><br>
-        Right (xr): <input type="text" name="xr" value="{{ xr }}"><br><br>
-        Epsilon: <input type="text" name="epsilon" value="{{ epsilon }}"><br><br>
+        Function f(x): <input type="text" name="fx" value="{{ fx }}" placeholder="e.g. x - 13^(1/4)" style="width:175px;"> = 0<br><br>
+        Lower Bound xₗ: <input type="text" name="xl" value="{{ xl }}" style="width:155px;"><br><br>
+        Upper Bound xᵣ: <input type="text" name="xr" value="{{ xr }}" style="width:155px;"><br><br>
+        Error Tolerance (ε): <input type="text" name="epsilon" value="{{ epsilon }}" placeholder="e.g. 0.000001" style="width:135px;"><br><br>
         <input type="submit" value="Compute">
       </form>
       <hr>
@@ -114,4 +113,4 @@ def index():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
