@@ -1,19 +1,23 @@
 import os
-
 from flask import Flask, request, render_template_string
 from sympy import sympify
 from math import inf
 
 app = Flask(__name__)
 
-def bisection(xl, xr, xm, fx):
+def bisection_step(xl, xr, xm, fx):
     fxm = fx.subs("x", xm)
     fxr = fx.subs("x", xr)
+    
+    # If exact root found, return immediately
+    if fxm == 0:
+        return xm, xm, True
+    
     if fxm * fxr < 0:
         xl = xm
     else:
         xr = xm
-    return xl, xr
+    return xl, xr, False
 
 # ------------------------------
 # HTML template
@@ -64,30 +68,35 @@ def index():
 
     if request.method == "POST":
         try:
-            # Step 0: เตรียมข้อมูล
+            # Step 0: Prepare inputs
             fx = sympify(request.form["fx"])
             xl = float(request.form["xl"])
             xr = float(request.form["xr"])
             epsilon = float(request.form["epsilon"])
 
-            # Step 1: ทำทิ้ง 1 รอบ เพื่อเก็บค่า xₘ เก่า
+            # Step 1: Initial midpoint
             xm = (xl + xr) / 2
-            xl, xr = bisection(xl, xr, xm, fx)
-
-            # Step 2: Iterations
-            criterion = inf
-            while criterion > epsilon:
-                xmnew = (xl + xr) / 2
-                xl, xr = bisection(xl, xr, xmnew, fx)
-                try:
-                    criterion = abs((xmnew - xm) / xmnew)
-                except ZeroDivisionError:
-                    iterations.append(f"Stopped at Iteration {i}: Division by zero occurred.")
-                    break
-                iterations.append(f"Iteration {i}: xm = {xmnew}, criterion = {criterion}")
-                xm = xmnew
-                i += 1
-        # กรณี User ทะลึ่งใส่ค่ามั่ว
+            xl, xr, found_root = bisection_step(xl, xr, xm, fx)
+            if found_root:
+                iterations.append(f"Exact root found at Iteration {i}: x = {xm}")
+            else:
+                # Step 2: Iteration
+                criterion = inf
+                while criterion > epsilon:
+                    xmnew = (xl + xr) / 2
+                    xl, xr, found_root = bisection_step(xl, xr, xmnew, fx)
+                    if found_root:
+                        iterations.append(f"Exact root found at Iteration {i}: x = {xmnew}")
+                        xm = xmnew
+                        break
+                    try:
+                        criterion = abs(xmnew - xm)  # absolute error
+                    except ZeroDivisionError:
+                        iterations.append(f"Stopped at Iteration {i}: Division by zero occurred.")
+                        break
+                    iterations.append(f"Iteration {i}: xm = {xmnew}, criterion = {criterion}")
+                    xm = xmnew
+                    i += 1
         except Exception as e:
             iterations.append(f"Error: {e}")
 
