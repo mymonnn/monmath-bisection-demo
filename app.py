@@ -28,29 +28,45 @@ HTML = """
   <head>
     <title>monmath | Bisection Calculator</title>
     <style>
-      body { font-family: Arial; margin: 20px; }
+      body { font-family: Arial; margin: 0; padding: 0; background-color: #f9f9f9; }
       input { width: 150px; }
-      h2 { color: darkblue; }
+      h2 { color: darkblue; margin-top: 0; }
       pre { background-color: #f0f0f0; padding: 10px; }
+      
+      /* Header bar */
+      .header {
+        background-color: darkblue;
+        color: white;
+        padding: 15px 20px;
+        font-weight: bold;
+        font-size: 24px;
+      }
+
+      .container {
+        margin: 20px;
+      }
     </style>
   </head>
   <body>
-    <h2>Bisection Calculator</h2>
-    <form method="post">
-      Function f(x): <input type="text" name="fx" value="{{ fx }}" style="width:200px;"> = 0<br><br>
-      Left (xl): <input type="text" name="xl" value="{{ xl }}"><br><br>
-      Right (xr): <input type="text" name="xr" value="{{ xr }}"><br><br>
-      Epsilon: <input type="text" name="epsilon" value="{{ epsilon }}"><br><br>
-      <input type="submit" value="Compute">
-    </form>
-    <hr>
-    {% if iterations %}
-      <h3>Iterations:</h3>
-      <pre>{{ iterations|join("\\n") }}</pre>
-      <h3>Summary</h3>
-      <p>Iteration number: {{ i }}</p>
-      <p>x = {{ xm }}</p>
-    {% endif %}
+    <div class="header">monmath.com</div>
+    <div class="container">
+      <h2>Bisection Calculator</h2>
+      <form method="post">
+        Function f(x): <input type="text" name="fx" value="{{ fx }}" style="width:200px;"> = 0<br><br>
+        Left (xl): <input type="text" name="xl" value="{{ xl }}"><br><br>
+        Right (xr): <input type="text" name="xr" value="{{ xr }}"><br><br>
+        Epsilon: <input type="text" name="epsilon" value="{{ epsilon }}"><br><br>
+        <input type="submit" value="Compute">
+      </form>
+      <hr>
+      {% if iterations %}
+        <h3>Iterations:</h3>
+        <pre>{{ iterations|join("\\n") }}</pre>
+        <h3>Summary</h3>
+        <p>Iteration number: {{ i }}</p>
+        <p>x = {{ xm }}</p>
+      {% endif %}
+    </div>
   </body>
 </html>
 """
