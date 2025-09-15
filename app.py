@@ -8,20 +8,14 @@ app = Flask(__name__)
 def bisection_step(xl, xr, xm, fx):
     fxm = fx.subs("x", xm)
     fxr = fx.subs("x", xr)
-    
-    # If exact root found, return immediately
     if fxm == 0:
         return xm, xm, True
-    
     if fxm * fxr < 0:
         xl = xm
     else:
         xr = xm
     return xl, xr, False
 
-# ------------------------------
-# HTML template
-# ------------------------------
 HTML = """
 <!DOCTYPE html>
 <html>
@@ -71,26 +65,22 @@ HTML = """
 </html>
 """
 
-# ------------------------------
-# Flask route
-# ------------------------------
 @app.route("/", methods=["GET", "POST"])
 def index():
-    iterations = []
+    fx = xl = xr = epsilon = ""
     xm = None
+    iterations = []
     i = 0
-
-    fx = xl = xr = epsilon = ""  # defaults for showing in form
 
     if request.method == "POST":
         try:
-            # Step 0: Prepare inputs
+            # Step 0: เตรียมข้อมูล
             fx = sympify(request.form["fx"])
-            xl = float(request.form["xl"])
-            xr = float(request.form["xr"])
+            xl = float(request.form["xl"]); xl_input = xl
+            xr = float(request.form["xr"]); xr_input = xr
             epsilon = float(request.form["epsilon"])
 
-            # Step 1: Initial midpoint
+            # Step 1: ทำทิ้ง 1 รอบ เพื่อเก็บค่า xₘ
             xm = (xl + xr) / 2
             xl, xr, found_root = bisection_step(xl, xr, xm, fx)
             if found_root:
@@ -99,6 +89,7 @@ def index():
                 # Step 2: Iteration
                 criterion = inf
                 while criterion > epsilon:
+                    i += 1
                     xmnew = (xl + xr) / 2
                     xl, xr, found_root = bisection_step(xl, xr, xmnew, fx)
                     if found_root:
@@ -106,13 +97,14 @@ def index():
                         xm = xmnew
                         break
                     try:
-                        criterion = abs(xmnew - xm)  # absolute error
+                        criterion = abs((xmnew - xm) / xmnew)
                     except ZeroDivisionError:
                         iterations.append(f"Stopped at Iteration {i}: Division by zero occurred.")
                         break
                     iterations.append(f"Iteration {i}: xm = {xmnew}, criterion = {criterion}")
                     xm = xmnew
-                    i += 1
+            xl = xl_input
+            xr = xr_input
         except Exception as e:
             iterations.append(f"Error: {e}")
 
@@ -120,9 +112,6 @@ def index():
         HTML, iterations=iterations, i=i, xm=xm, fx=fx, xl=xl, xr=xr, epsilon=epsilon
     )
 
-# ------------------------------
-# Run app
-# ------------------------------
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # default 5000 for local
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
